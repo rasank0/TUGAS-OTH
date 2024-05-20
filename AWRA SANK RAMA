@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+    struct Node *prev;
+} Node;
+
+Node* createNode(int data) {
+    Node *newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = newNode->prev = newNode;
+    return newNode;
+}
+
+void insertNode(Node **head, int data) {
+    Node *newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        Node *last = (*head)->prev;
+        newNode->next = *head;
+        (*head)->prev = newNode;
+        newNode->prev = last;
+        last->next = newNode;
+    }
+}
+
+void printList(Node *head, const char *label) {
+    if (head == NULL) {
+        printf("%s: List is empty\n", label);
+        return;
+    }
+    
+    printf("%s\n", label);
+    Node *temp = head;
+    char addressStr[20]; 
+
+    do {
+        sprintf(addressStr, "%p", (void *)temp); 
+        printf("Address: %s, Data: %d\n", addressStr, temp->data); 
+        temp = temp->next;
+    } while(temp != head);
+}
+
+void removeDuplicates(Node **head) {
+    if (*head == NULL) return;
+
+    Node *current = *head;
+    do {
+        Node *index = current->next;
+        while (index != *head) {
+            if (current->data == index->data) {
+                Node *temp = index;
+                index->prev->next = index->next;
+                index->next->prev = index->prev;
+                if (index == *head) *head = index->next;
+                index = index->next;
+                free(temp);
+            } else {
+                index = index->next;
+            }
+        }
+        current = current->next;
+    } while (current != *head);
+}
+
+void sortList(Node **head) {
+    if (*head == NULL) {
+        return;
+    }
+
+    Node *current = *head, *index = NULL;
+    int temp;
+    
+    do {
+        index = current->next;
+        while (index != *head) {
+            if (current->data > index->data) {
+                temp = current->data;
+                current->data = index->data;
+                index->data = temp;
+            }
+            index = index->next;
+        }
+        current = current->next;
+    } while (current->next != *head);
+}
+
+int main() {
+    Node *head = NULL;
+    int n, data;
+    printf("Masukkan jumlah data (1-10): ");
+    scanf("%d", &n);
+    for(int i = 0; i < n; i++) {
+        printf("Masukkan data (1-10): ");
+        scanf("%d", &data);
+        insertNode(&head, data);
+    }
+    printList(head, "");
+    sortList(&head);
+    removeDuplicates(&head);
+    printList(head, "");
+    
+    return 0;
+}
